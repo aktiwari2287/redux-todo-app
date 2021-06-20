@@ -40,7 +40,23 @@ export const toggleCompleteAsync = createAsyncThunk('todos/toggleCompleteAsync',
             return {id: todo.id, completed: todo.completed};
         }
     }
-)
+);
+
+export const deleteTodoAsync = createAsyncThunk('todos/deleteTodoAsync',
+    async (payload) => {
+        const response = await fetch(`http://localhost:7000/todos/${payload.id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({completed: payload.completed})
+        });
+        if(response.ok) {
+            const todos = await response.json();
+            return {todos};
+        }
+    }
+);
 
 const todoSlice = createSlice({
     name: 'todos',
@@ -89,6 +105,10 @@ const todoSlice = createSlice({
          [toggleCompleteAsync.fulfilled]: (state, action) => {
             const index = state.findIndex((todo) => todo.id === action.payload.id);
              state[index].completed = action.payload.completed;
+         },
+
+         [deleteTodoAsync.fulfilled]: (state, action) => {
+            return action.payload.todos;
          }
      }
 
